@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block titulo %}Alertas de stock{% endblock %}
+{% block contenido %}
+<h1>Alertas de stock</h1>
+<p class="suave">HU-6 · El stock vigente cuenta solo lotes disponibles y no vencidos. Se debe cumplir: crítico ≤ mínimo ≤ seguridad.</p>
+
+<section class="panel">
+  <div class="tabla-scroll">
+    <table>
+      <caption class="visually-hidden">Stock por medicamento y niveles de alerta</caption>
+      <thead>
+        <tr>
+          <th scope="col">Medicamento</th><th scope="col">Stock vigente</th><th scope="col">Nivel</th>
+          <th scope="col">Crítico</th><th scope="col">Mínimo</th><th scope="col">Seguridad</th>
+          {% if usuario.rol == 'farmacia' %}<th scope="col">Acción</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+      {% for a in alertas %}
+        <tr>
+          <td>{{ a.nombre }}</td>
+          <td>{{ a.stock }}</td>
+          <td><span class="insignia niv-{{ a.nivel|lower }}">{{ a.nivel }}</span></td>
+          {% if usuario.rol == 'farmacia' %}
+          <td colspan="4">
+            <form method="post" action="{{ url_for('guardar_umbrales', medicamento_id=a.id) }}" class="en-linea">
+              <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+              <label class="visually-hidden" for="cri-{{ a.id }}">Crítico de {{ a.nombre }}</label>
+              <input id="cri-{{ a.id }}" class="num" name="critico" type="number" min="0" value="{{ a.stock_critico }}">
+              <label class="visually-hidden" for="min-{{ a.id }}">Mínimo de {{ a.nombre }}</label>
+              <input id="min-{{ a.id }}" class="num" name="minimo" type="number" min="0" value="{{ a.stock_minimo }}">
+              <label class="visually-hidden" for="seg-{{ a.id }}">Seguridad de {{ a.nombre }}</label>
+              <input id="seg-{{ a.id }}" class="num" name="seguridad" type="number" min="0" value="{{ a.stock_seguridad }}">
+              <button class="btn btn-sec btn-peq" type="submit">Guardar</button>
+            </form>
+          </td>
+          {% else %}
+          <td>{{ a.stock_critico }}</td><td>{{ a.stock_minimo }}</td><td>{{ a.stock_seguridad }}</td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if usuario.rol == 'farmacia' %}<p class="suave">Orden de las casillas: crítico, mínimo y seguridad.</p>{% endif %}
+</section>
+{% endblock %}

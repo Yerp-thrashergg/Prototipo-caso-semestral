@@ -1,0 +1,68 @@
+<table>
+  <caption class="visually-hidden">Solicitudes de medicamentos</caption>
+  <thead>
+    <tr>
+      <th scope="col">Código</th><th scope="col">Unidad / Paciente</th><th scope="col">Prioridad</th>
+      <th scope="col">Medicamentos</th><th scope="col">Estado</th><th scope="col">Fecha</th>
+      {% if usuario.rol in ('farmacia', 'clinica') %}<th scope="col">Acción</th>{% endif %}
+    </tr>
+  </thead>
+  <tbody>
+  {% for s in solicitudes %}
+    <tr>
+      <td>{{ s.codigo }}</td>
+      <td>{{ s.unidad }}<br><small class="suave">{{ s.ficha_paciente or 'Reposición de unidad' }}</small></td>
+      <td><span class="insignia pri-{{ s.prioridad|lower }}">{{ s.prioridad }}</span></td>
+      <td>
+        <ul class="lista-plana">
+        {% for i in s['items'] %}
+          <li>{{ i.nombre }} × {{ i.cantidad_pedida }}{% if s.estado == 'Despachado' %} <small class="suave">(despachado: {{ i.cantidad_despachada }})</small>{% endif %}</li>
+        {% endfor %}
+        </ul>
+      </td>
+      <td>
+        <span class="insignia soli-{{ s.estado|replace(' ', '-')|lower }}">{{ s.estado }}</span>
+        {% if s.motivo %}<br><small class="suave">{{ s.motivo }}</small>{% endif %}
+      </td>
+      <td>{{ s.creada|fecha }}</td>
+      {% if usuario.rol == 'farmacia' %}
+      <td>
+        {% if s.estado in ('Pendiente', 'En Preparación') %}
+          <div class="acciones-col">
+            {% if s.estado == 'Pendiente' %}
+            <form method="post" action="{{ url_for('preparar', solicitud_id=s.id) }}">
+              <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+              <button class="btn btn-sec btn-peq" type="submit">Preparar</button>
+            </form>
+            {% endif %}
+            <form method="post" action="{{ url_for('despachar', solicitud_id=s.id) }}">
+              <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+              <button class="btn btn-peq" type="submit">Despachar (FEFO)</button>
+            </form>
+            <form method="post" action="{{ url_for('rechazar', solicitud_id=s.id) }}" class="en-linea">
+              <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+              <label class="visually-hidden" for="rech-{{ s.id }}">Motivo del rechazo de {{ s.codigo }}</label>
+              <input id="rech-{{ s.id }}" name="motivo" type="text" placeholder="Motivo de rechazo" required>
+              <button class="btn btn-peligro btn-peq" type="submit">Rechazar</button>
+            </form>
+          </div>
+        {% else %}—{% endif %}
+      </td>
+      {% elif usuario.rol == 'clinica' %}
+      <td>
+        {% if s.estado == 'Pendiente' %}
+        <form method="post" action="{{ url_for('cancelar', solicitud_id=s.id) }}" class="en-linea">
+          <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+          <label class="visually-hidden" for="canc-{{ s.id }}">Motivo de cancelación de {{ s.codigo }}</label>
+          <input id="canc-{{ s.id }}" name="motivo" type="text" placeholder="Motivo" required>
+          <button class="btn btn-peligro btn-peq" type="submit">Cancelar</button>
+        </form>
+        {% else %}—{% endif %}
+      </td>
+      {% endif %}
+    </tr>
+  {% else %}
+    <tr><td colspan="7" class="vacio">No hay solicitudes para mostrar.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>

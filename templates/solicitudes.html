@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block titulo %}Solicitudes{% endblock %}
+{% block contenido %}
+<h1>Solicitudes de medicamentos</h1>
+<p class="suave">
+  HU-4 · Estado de cada solicitud; la tabla se actualiza sola cada 15 segundos.
+  {% if usuario.rol == 'farmacia' %}Las activas aparecen primero, ordenadas por prioridad (HU-5, despacho con FEFO).{% endif %}
+</p>
+
+<section class="panel">
+  <form method="get" class="filtros" id="filtros">
+    <div>
+      <label for="q">Buscar por código o ficha del paciente</label>
+      <input id="q" name="q" type="search" value="{{ q }}">
+    </div>
+    <div>
+      <label for="estado">Estado</label>
+      <select id="estado" name="estado">
+        <option value="">Todos</option>
+        {% for e in ['Pendiente', 'En Preparación', 'Despachado', 'Rechazado', 'Cancelada'] %}
+        <option value="{{ e }}" {% if estado == e %}selected{% endif %}>{{ e }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn" type="submit">Filtrar</button>
+  </form>
+</section>
+
+<section class="panel">
+  <div id="tabla-solicitudes" class="tabla-scroll">
+    {% include "_tabla_solicitudes.html" %}
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  /* Actualiza la tabla sin recargar la página (no interrumpe si estás escribiendo un motivo) */
+  var contenedor = document.getElementById("tabla-solicitudes");
+  setInterval(function () {
+    if (contenedor.contains(document.activeElement) && document.activeElement.tagName === "INPUT") { return; }
+    fetch("{{ url_for('solicitudes_tabla') }}" + window.location.search)
+      .then(function (r) { return r.ok ? r.text() : null; })
+      .then(function (html) { if (html) { contenedor.innerHTML = html; } })
+      .catch(function () {});
+  }, 15000);
+</script>
+{% endblock %}

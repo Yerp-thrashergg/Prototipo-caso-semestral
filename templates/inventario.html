@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block titulo %}Inventario{% endblock %}
+{% block contenido %}
+<h1>Inventario y cuarentena</h1>
+<p class="suave">HU-2 · Consulta el stock por lote. El personal de bodega puede poner lotes en cuarentena indicando el motivo.</p>
+
+<section class="panel">
+  <form method="get" class="filtros">
+    <div>
+      <label for="q">Buscar por nombre, principio activo, lote o ubicación</label>
+      <input id="q" name="q" type="search" value="{{ q }}">
+    </div>
+    <div>
+      <label for="estado">Estado</label>
+      <select id="estado" name="estado">
+        <option value="">Todos</option>
+        {% for e in ['Disponible', 'En cuarentena', 'Agotado'] %}
+        <option value="{{ e }}" {% if estado == e %}selected{% endif %}>{{ e }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn" type="submit">Filtrar</button>
+  </form>
+</section>
+
+<section class="panel">
+  <div class="tabla-scroll">
+    <table>
+      <caption class="visually-hidden">Lotes en inventario</caption>
+      <thead>
+        <tr>
+          <th scope="col">Medicamento</th><th scope="col">Lote</th><th scope="col">Vencimiento</th>
+          <th scope="col">Stock</th><th scope="col">Ubicación</th><th scope="col">Estado</th>
+          {% if usuario.rol == 'bodega' %}<th scope="col">Acción</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+      {% for l in lotes %}
+        <tr>
+          <td>{{ l.nombre }}<br><small class="suave">{{ l.principio_activo }}</small></td>
+          <td>{{ l.lote }}</td>
+          <td>{{ l.fecha_vencimiento|fecha }}<br>
+            <span class="insignia sem-{{ l.semaforo|lower }}">{% if l.dias < 0 %}Vencido{% else %}{{ l.semaforo }} · {{ l.dias }} d{% endif %}</span></td>
+          <td>{{ l.cantidad }}</td>
+          <td>{{ l.ubicacion or '—' }}</td>
+          <td>
+            <span class="insignia est-{{ l.estado|replace(' ', '-')|lower }}">{{ l.estado }}</span>
+            {% if l.motivo_cuarentena %}<br><small class="suave">{{ l.motivo_cuarentena }}</small>{% endif %}
+          </td>
+          {% if usuario.rol == 'bodega' %}
+          <td>
+            {% if l.estado == 'En cuarentena' %}
+              <form method="post" action="{{ url_for('liberar', lote_id=l.id) }}">
+                <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+                <button class="btn btn-sec btn-peq" type="submit">Liberar lote</button>
+              </form>
+            {% else %}
+              <form method="post" action="{{ url_for('cuarentena', lote_id=l.id) }}" class="en-linea">
+                <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+                <label class="visually-hidden" for="motivo-{{ l.id }}">Motivo de cuarentena del lote {{ l.lote }}</label>
+                <input id="motivo-{{ l.id }}" name="motivo" type="text" placeholder="Motivo (obligatorio)" required>
+                <button class="btn btn-peligro btn-peq" type="submit">Cuarentena</button>
+              </form>
+            {% endif %}
+          </td>
+          {% endif %}
+        </tr>
+      {% else %}
+        <tr><td colspan="7" class="vacio">No hay lotes que coincidan con la búsqueda.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

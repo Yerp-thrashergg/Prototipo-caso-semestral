@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block titulo %}Inicio{% endblock %}
+{% block contenido %}
+<h1>Inicio</h1>
+<p class="suave">Resumen del inventario y de las solicitudes.</p>
+
+<div class="tarjetas">
+  {% if usuario.rol in ('farmacia', 'gerencia') %}
+  <a class="tarjeta" href="{{ url_for('alertas') }}">
+    <span class="numero {{ 'peligro' if resumen.criticos else '' }}">{{ resumen.criticos }}</span>
+    <span>Medicamentos en nivel crítico</span>
+    <small>{{ resumen.minimos }} más en nivel mínimo</small>
+  </a>
+  {% endif %}
+  {% if usuario.rol in ('bodega', 'farmacia', 'gerencia') %}
+  <a class="tarjeta" href="{{ url_for('vencimientos') }}">
+    <span class="numero {{ 'peligro' if resumen.rojos or resumen.vencidos else '' }}">{{ resumen.rojos + resumen.vencidos }}</span>
+    <span>Lotes vencidos o por vencer en 30 días</span>
+    <small>{{ resumen.vencidos }} ya vencidos</small>
+  </a>
+  <a class="tarjeta" href="{{ url_for('inventario', estado='En cuarentena') }}">
+    <span class="numero">{{ resumen.cuarentena }}</span>
+    <span>Lotes en cuarentena</span>
+    <small>No se pueden despachar</small>
+  </a>
+  {% endif %}
+  {% if usuario.rol in ('clinica', 'farmacia', 'gerencia') %}
+  <a class="tarjeta" href="{{ url_for('solicitudes') }}">
+    <span class="numero">{{ resumen.activas }}</span>
+    <span>Solicitudes activas</span>
+    <small>Pendientes o en preparación</small>
+  </a>
+  {% endif %}
+</div>
+
+<section class="panel">
+  <h2>Accesos rápidos</h2>
+  <ul class="accesos">
+    {% for item in menu if item.endpoint != 'inicio' %}
+    <li><a class="btn btn-sec" href="{{ url_for(item.endpoint) }}">{{ item.texto }}</a></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

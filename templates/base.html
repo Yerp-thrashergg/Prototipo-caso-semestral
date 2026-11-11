@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Inicio{% endblock %} · HSG SGMI</title>
+  <script>
+    /* Aplica el tema guardado antes de pintar la página (evita parpadeos) */
+    (function () {
+      try {
+        var tema = localStorage.getItem("tema");
+        if (!tema) { tema = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; }
+        document.documentElement.setAttribute("data-tema", tema);
+      } catch (e) { document.documentElement.setAttribute("data-tema", "light"); }
+    })();
+  </script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body>
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+
+  <header class="barra">
+    <div class="marca">
+      <span class="logo" aria-hidden="true">+</span>
+      <div>
+        <strong>HSG SGMI</strong>
+        <small>Hospital San Gabriel · Intranet</small>
+      </div>
+    </div>
+    <div class="barra-der">
+      <button id="btn-tema" class="btn btn-sec" type="button" aria-pressed="false">Modo oscuro</button>
+      {% if usuario %}
+        <span class="quien">{{ usuario.nombre }}<small>{{ rol_nombre }}{% if usuario.unidad %} · {{ usuario.unidad }}{% endif %}</small></span>
+        <a class="btn btn-sec" href="{{ url_for('salir') }}">Salir</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <div class="layout {% if not usuario %}sin-menu{% endif %}">
+    {% if usuario %}
+    <nav class="menu" aria-label="Menú principal">
+      <ul>
+        {% for item in menu %}
+        <li><a href="{{ url_for(item.endpoint) }}" {% if request.endpoint == item.endpoint %}aria-current="page"{% endif %}>{{ item.texto }}</a></li>
+        {% endfor %}
+      </ul>
+    </nav>
+    {% endif %}
+
+    <main id="contenido" tabindex="-1">
+      <div aria-live="polite">
+        {% for categoria, mensaje in get_flashed_messages(with_categories=true) %}
+          <div class="aviso aviso-{{ categoria }}" role="{{ 'alert' if categoria == 'error' else 'status' }}">{{ mensaje }}</div>
+        {% endfor %}
+      </div>
+      {% block contenido %}{% endblock %}
+    </main>
+  </div>
+
+  <footer class="pie">HSG SGMI · Prototipo del Sprint 1 (MVP) · Solo para pruebas en localhost</footer>
+
+  <script src="{{ url_for('static', filename='js/tema.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

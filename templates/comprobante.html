@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titulo %}Comprobante {{ e.codigo }}{% endblock %}
+{% block contenido %}
+<h1>Comprobante de entrada</h1>
+<section class="panel comprobante">
+  <p class="codigo">{{ e.codigo }}</p>
+  <dl>
+    <dt>Medicamento</dt><dd>{{ e.medicamento }}</dd>
+    <dt>Lote</dt><dd>{{ e.lote }}</dd>
+    <dt>Fecha de vencimiento</dt><dd>{{ e.fecha_vencimiento|fecha }}</dd>
+    <dt>Cantidad recibida</dt><dd>{{ e.cantidad }}</dd>
+    <dt>Proveedor</dt><dd>{{ e.proveedor }}</dd>
+    <dt>Ubicación</dt><dd>{{ e.ubicacion or 'Sin asignar' }}</dd>
+    <dt>Registrado por</dt><dd>{{ e.usuario }}</dd>
+    <dt>Fecha y hora</dt><dd>{{ e.fecha|fecha }}</dd>
+  </dl>
+  <p class="acciones">
+    <button class="btn btn-sec" type="button" onclick="window.print()">Imprimir</button>
+    {% if usuario.rol == 'bodega' %}<a class="btn" href="{{ url_for('entradas') }}">Registrar otra entrada</a>{% endif %}
+  </p>
+</section>
+{% endblock %}

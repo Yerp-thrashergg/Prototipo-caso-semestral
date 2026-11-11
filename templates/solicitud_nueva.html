@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block titulo %}Nueva solicitud{% endblock %}
+{% block contenido %}
+<h1>Nueva solicitud de medicamentos</h1>
+<p class="suave">HU-3 · La solicitud se envía en tiempo real a Farmacia Central, sin formularios en papel.</p>
+
+<section class="panel">
+  <form method="post" class="formulario">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <div class="grilla">
+      <div>
+        <label for="unidad">Unidad clínica</label>
+        <input id="unidad" type="text" value="{{ usuario.unidad }}" readonly>
+      </div>
+      <div>
+        <label for="ficha">Ficha médica o RUT del paciente</label>
+        <input id="ficha" name="ficha" type="text" maxlength="30" value="{{ form.get('ficha', '') }}">
+        <small class="suave">Obligatorio, excepto en reposición de stock de la unidad.</small>
+      </div>
+      <div>
+        <label for="prioridad">Prioridad</label>
+        <select id="prioridad" name="prioridad">
+          {% for p in prioridades %}
+          <option value="{{ p }}" {% if form.get('prioridad', 'Normal') == p %}selected{% endif %}>{{ p }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <fieldset>
+      <legend>Medicamentos solicitados</legend>
+      {% for i in range(5) %}
+      <div class="fila-item">
+        <div>
+          <label for="med-{{ i }}">Medicamento {{ i + 1 }}</label>
+          <select id="med-{{ i }}" name="medicamento">
+            <option value="">—</option>
+            {% for m in medicamentos %}
+            <option value="{{ m.id }}" {% if form.getlist('medicamento')[i:i+1] == [m.id|string] %}selected{% endif %}>{{ m.nombre }} ({{ m.presentacion }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label for="cant-{{ i }}">Cantidad</label>
+          <input id="cant-{{ i }}" name="cantidad" type="number" min="1" value="{{ (form.getlist('cantidad')[i:i+1] or [''])[0] }}">
+        </div>
+      </div>
+      {% endfor %}
+    </fieldset>
+
+    <button class="btn" type="submit">Enviar solicitud</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block titulo %}Vencimientos{% endblock %}
+{% block contenido %}
+<h1>Control de vencimientos</h1>
+<p class="suave">HU-7 · Semáforo de caducidad. Los lotes vencidos no se despachan.</p>
+
+<div class="tarjetas">
+  <div class="tarjeta sem-vencido"><span class="numero">{{ conteo.Vencido }}</span><span>Vencidos</span></div>
+  <div class="tarjeta sem-rojo"><span class="numero">{{ conteo.Rojo }}</span><span>Rojo · 30 días o menos</span></div>
+  <div class="tarjeta sem-amarillo"><span class="numero">{{ conteo.Amarillo }}</span><span>Amarillo · 31 a 60 días</span></div>
+  <div class="tarjeta sem-verde"><span class="numero">{{ conteo.Verde }}</span><span>Verde · más de 60 días</span></div>
+</div>
+
+<section class="panel">
+  <div class="tabla-scroll">
+    <table>
+      <caption class="visually-hidden">Lotes ordenados por fecha de vencimiento</caption>
+      <thead><tr><th scope="col">Medicamento</th><th scope="col">Lote</th><th scope="col">Vencimiento</th><th scope="col">Días</th><th scope="col">Semáforo</th><th scope="col">Stock</th><th scope="col">Estado</th></tr></thead>
+      <tbody>
+      {% for l in lotes %}
+        <tr>
+          <td>{{ l.nombre }}</td><td>{{ l.lote }}</td><td>{{ l.fecha_vencimiento|fecha }}</td>
+          <td>{{ l.dias }}</td>
+          <td><span class="insignia sem-{{ l.semaforo|lower }}">{{ l.semaforo }}</span></td>
+          <td>{{ l.cantidad }}</td><td>{{ l.estado }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="7" class="vacio">No hay lotes con stock.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

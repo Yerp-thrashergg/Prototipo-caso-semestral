@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block titulo %}Ingreso{% endblock %}
+{% block contenido %}
+<section class="login panel">
+  <h1>Ingreso a la intranet</h1>
+  <p class="suave">Sistema de Gestión de Medicamentos del Hospital San Gabriel.</p>
+  <form method="post" class="formulario">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label for="usuario">Usuario</label>
+    <input id="usuario" name="usuario" type="text" autocomplete="username" required autofocus>
+    <label for="clave">Clave</label>
+    <input id="clave" name="clave" type="password" autocomplete="current-password" required>
+    <button class="btn" type="submit">Ingresar</button>
+  </form>
+</section>
+{% endblock %}
