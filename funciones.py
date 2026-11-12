@@ -26,7 +26,7 @@ def bitacora(cur, usuario_id, accion, detalle):
     )
 
 
-# ---------------------------------------------------------------- Catálogos
+# Catálogos
 def listar_medicamentos():
     return consultar("SELECT id, nombre, presentacion FROM medicamentos ORDER BY nombre")
 
@@ -35,7 +35,7 @@ def listar_proveedores():
     return consultar("SELECT id, nombre FROM proveedores ORDER BY nombre")
 
 
-# ------------------------------------------------- HU-1 Registro de entradas
+# HU-1 Registro de entradas
 def registrar_entrada(usuario_id, medicamento_id, lote, fecha_venc, cantidad, proveedor_id, ubicacion):
     lote = (lote or "").strip()
     if not lote:
@@ -110,7 +110,7 @@ def ultimas_entradas(limite=10):
         "ORDER BY e.id DESC LIMIT " + str(int(limite)))
 
 
-# --------------------------------------- HU-7 Semáforo (se usa en varias vistas)
+# HU-7 Semáforo (se usa en varias vistas)
 def semaforo(dias):
     """Rojo: 30 días o menos. Amarillo: 31 a 60. Verde: más de 60."""
     if dias < 0:
@@ -133,7 +133,7 @@ def semaforo_lotes():
     return filas
 
 
-# ------------------------------------------- Consulta de stock y HU-2 Cuarentena
+# Consulta de stock y HU-2 Cuarentena
 def buscar_stock(texto="", estado=""):
     sql = (
         "SELECT l.id, m.nombre, m.principio_activo, l.lote, l.fecha_vencimiento, l.cantidad, l.ubicacion, "
@@ -188,7 +188,7 @@ def liberar_lote(usuario_id, lote_id):
     transaccion(trabajo)
 
 
-# ------------------------------------------ HU-3 Solicitud digital por paciente
+# HU-3 Solicitud digital por paciente
 def crear_solicitud(usuario_id, unidad, ficha, prioridad, items):
     """items: lista de pares (medicamento_id, cantidad) tal como llegan del formulario."""
     ficha = (ficha or "").strip()
@@ -225,7 +225,7 @@ def crear_solicitud(usuario_id, unidad, ficha, prioridad, items):
     return transaccion(trabajo)
 
 
-# --------------------------------- HU-4 Estado de solicitudes (y cola de Farmacia)
+# HU-4 Estado de solicitudes (y cola de Farmacia)
 def listar_solicitudes(rol, unidad=None, estado="", texto=""):
     sql = (
         "SELECT s.id, s.codigo, s.ficha_paciente, s.unidad, s.prioridad, s.estado, s.creada, s.actualizada, "
@@ -284,7 +284,7 @@ def cancelar_solicitud(usuario_id, unidad, solicitud_id, motivo):
     transaccion(trabajo)
 
 
-# ------------------------------------------------- HU-5 Despacho con FEFO
+# HU-5 Despacho con FEFO
 def preparar_solicitud(usuario_id, solicitud_id):
     def trabajo(cur):
         cur.execute("SELECT codigo, estado FROM solicitudes WHERE id = %s FOR UPDATE", (solicitud_id,))
@@ -367,7 +367,7 @@ def rechazar_solicitud(usuario_id, solicitud_id, motivo):
     transaccion(trabajo)
 
 
-# ------------------------------------------- HU-6 Alertas de stock mínimo
+# HU-6 Alertas de stock mínimo
 def nivel_stock(stock, minimo, critico, seguridad):
     if stock <= critico:
         return "Crítico"
@@ -412,7 +412,7 @@ def guardar_umbrales(usuario_id, medicamento_id, minimo, critico, seguridad):
     transaccion(trabajo)
 
 
-# ------------------------------------------------------------ Panel de inicio
+# Panel de inicio
 def resumen_inicio(rol, unidad):
     alertas = alertas_stock()
     lotes = semaforo_lotes()

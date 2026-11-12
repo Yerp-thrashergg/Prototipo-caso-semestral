@@ -35,7 +35,7 @@
 
 {% block scripts %}
 <script>
-  /* Actualiza la tabla sin recargar la página (no interrumpe si estás escribiendo un motivo) */
+  /* Actualiza la tabla sin recargar la página*/
   var contenedor = document.getElementById("tabla-solicitudes");
   setInterval(function () {
     if (contenedor.contains(document.activeElement) && document.activeElement.tagName === "INPUT") { return; }

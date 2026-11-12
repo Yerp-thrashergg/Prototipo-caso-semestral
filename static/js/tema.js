@@ -1,4 +1,4 @@
-/* Botón de modo claro / oscuro. La preferencia queda guardada en el navegador. */
+/* Botón de modo claro / oscuro.*/
 (function () {
   var boton = document.getElementById("btn-tema");
   if (!boton) { return; }

@@ -116,7 +116,7 @@ def error_bd(e):
                            mensaje="Revisa que MySQL esté encendido y que la clave en DB_PASSWORD sea correcta."), 500
 
 
-# ------------------------------------------------------------ Sesión
+#Sesión
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -145,7 +145,7 @@ def inicio():
     return render_template("inicio.html", resumen=f.resumen_inicio(u["rol"], u["unidad"]))
 
 
-# ------------------------------------------------------------ HU-1 Entradas
+# HU-1 Entradas
 @app.route("/entradas", methods=["GET", "POST"])
 @solo_roles("bodega")
 def entradas():
@@ -178,7 +178,7 @@ def comprobante(entrada_id):
     return render_template("comprobante.html", e=entrada)
 
 
-# ------------------------------------------------- Inventario y HU-2 Cuarentena
+# Inventario y HU-2 Cuarentena
 @app.route("/inventario")
 @login_requerido
 def inventario():
@@ -209,7 +209,7 @@ def liberar(lote_id):
     return redirect(url_for("inventario"))
 
 
-# ------------------------------------------------------------ HU-3 y HU-4 Solicitudes
+#HU-3 y HU-4 Solicitudes
 @app.route("/solicitudes/nueva", methods=["GET", "POST"])
 @solo_roles("clinica")
 def solicitud_nueva():
@@ -297,7 +297,7 @@ def cancelar(solicitud_id):
     return redirect(url_for("solicitudes"))
 
 
-# ------------------------------------------------------------ HU-6 Alertas
+#HU-6 Alertas
 @app.route("/alertas")
 @solo_roles("farmacia", "gerencia")
 def alertas():
@@ -314,7 +314,7 @@ def guardar_umbrales(medicamento_id):
     return redirect(url_for("alertas"))
 
 
-# ------------------------------------------------------------ HU-7 Vencimientos
+#HU-7 Vencimientos
 @app.route("/vencimientos")
 @solo_roles("bodega", "farmacia", "gerencia")
 def vencimientos():
